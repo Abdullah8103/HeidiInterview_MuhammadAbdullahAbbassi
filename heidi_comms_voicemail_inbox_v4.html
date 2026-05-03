@@ -1,0 +1,262 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  .app { font-family: 'DM Sans', sans-serif; background: #f5f2eb; min-height: 600px; color: #1a1a18; }
+  .topbar { background: #1a1a18; color: #f5f2eb; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; }
+  .topbar-left { display: flex; align-items: center; gap: 10px; }
+  .logo { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; letter-spacing: 0.08em; color: #f5f2eb; }
+  .logo span { color: #7eb8a0; }
+  .divider-v { width: 1px; height: 16px; background: #3a3a38; }
+  .topbar-title { font-size: 13px; color: #888880; }
+  .topbar-right { display: flex; align-items: center; gap: 14px; }
+  .date-badge { font-family: 'DM Mono', monospace; font-size: 11px; color: #888880; letter-spacing: 0.05em; }
+  .clinic-name { font-size: 12px; color: #7eb8a0; font-weight: 500; }
+  .queue-indicator { display: flex; align-items: center; gap: 5px; font-family: 'DM Mono', monospace; font-size: 11px; color: #e67e22; }
+  .queue-dot { width: 6px; height: 6px; border-radius: 50%; background: #e67e22; animation: pulse 1.5s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .main { padding: 20px; max-width: 980px; margin: 0 auto; }
+  .summary-bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 16px; }
+  .stat-card { background: #fff; border: 1px solid #e8e4dc; border-radius: 8px; padding: 14px; }
+  .stat-label { font-size: 10px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: #888880; margin-bottom: 4px; }
+  .stat-value { font-family: 'DM Mono', monospace; font-size: 26px; font-weight: 400; color: #1a1a18; line-height: 1; }
+  .stat-value.urgent { color: #c0392b; }
+  .stat-value.done { color: #7eb8a0; }
+  .stat-value.warn { color: #e67e22; }
+  .stat-sub { font-size: 10px; color: #aaa89e; margin-top: 3px; }
+  .filters { display: flex; align-items: center; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; background: #e8e4dc; padding: 6px; border-radius: 10px; width: fit-content; }
+  .filter-btn { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; padding: 6px 14px; border-radius: 7px; border: none; background: transparent; color: #666660; cursor: pointer; transition: all 0.15s; }
+  .filter-btn:hover { background: #fff; color: #1a1a18; }
+  .filter-btn.active { background: #fff; color: #1a1a18; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+  .filter-btn.warn-filter { color: #8a5e0a; }
+  .filter-btn.warn-filter.active { background: #e67e22; color: #fff; }
+  .section-label { font-size: 10px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #aaa89e; margin-bottom: 6px; margin-top: 18px; padding-left: 2px; }
+  .voicemail-card { background: #fff; border: 1px solid #e8e4dc; border-radius: 10px; padding: 14px 16px; margin-bottom: 7px; cursor: pointer; transition: all 0.15s; border-left: 4px solid transparent; }
+  .voicemail-card:hover { border-color: #d8d4cc; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .voicemail-card.urgent { border-left-color: #c0392b; }
+  .voicemail-card.medium { border-left-color: #e67e22; }
+  .voicemail-card.routine { border-left-color: #7eb8a0; }
+  .voicemail-card.failure { border-left-color: #e67e22; }
+  .voicemail-card.processing { border-left-color: #888880; opacity: 0.7; }
+  .voicemail-card.done { opacity: 0.5; }
+  .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .card-left { display: flex; align-items: flex-start; gap: 10px; flex: 1; min-width: 0; }
+  .urgency-pill { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.05em; padding: 3px 7px; border-radius: 4px; text-transform: uppercase; white-space: nowrap; flex-shrink: 0; margin-top: 2px; }
+  .urgency-pill.urgent { background: #fdecea; color: #c0392b; }
+  .urgency-pill.medium { background: #fef3e8; color: #e67e22; }
+  .urgency-pill.routine { background: #eef7f4; color: #27896a; }
+  .urgency-pill.failure { background: #fff3cd; color: #8a5e0a; }
+  .urgency-pill.processing { background: #f0ede6; color: #888880; }
+  .card-body { flex: 1; min-width: 0; }
+  .caller-row { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; flex-wrap: wrap; }
+  .caller-name { font-size: 14px; font-weight: 600; color: #1a1a18; }
+  .dob-tag { font-size: 11px; color: #aaa89e; }
+  .no-id-tag { font-size: 11px; color: #c0392b; font-weight: 500; }
+  .intent-tag { display: inline-block; font-size: 11px; font-weight: 500; color: #888880; background: #f0ede6; padding: 2px 7px; border-radius: 4px; margin-bottom: 5px; }
+  .intent-tag.failure-tag { background: #fff3cd; color: #8a5e0a; }
+  .summary-text { font-size: 13px; color: #444440; line-height: 1.5; }
+  .processing-note { font-size: 12px; color: #888880; font-style: italic; margin-top: 4px; }
+  .card-meta { display: flex; align-items: center; gap: 10px; margin-top: 6px; flex-wrap: wrap; }
+  .meta-item { font-family: 'DM Mono', monospace; font-size: 10px; color: #aaa89e; }
+  .why-label { font-size: 10px; color: #aaa89e; cursor: pointer; text-decoration: underline; }
+  .card-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+  .time-label { font-family: 'DM Mono', monospace; font-size: 11px; color: #aaa89e; }
+  .override-btn { font-size: 10px; color: #888880; border: 1px solid #e8e4dc; background: #fff; border-radius: 4px; padding: 2px 7px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+  .override-btn:hover { background: #f0ede6; }
+  .expanded-area { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid #f0ede6; }
+  .expanded-area.open { display: block; }
+  .next-step-label { font-size: 10px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: #aaa89e; margin-bottom: 5px; }
+  .next-step-text { font-size: 13px; color: #1a1a18; font-weight: 500; background: #f5f2eb; padding: 9px 11px; border-radius: 6px; margin-bottom: 10px; }
+  .why-box { display: none; font-size: 12px; color: #555550; background: #f8f6f0; border-left: 3px solid #d8d4cc; padding: 8px 10px; border-radius: 0 5px 5px 0; margin-bottom: 10px; line-height: 1.5; }
+  .why-box.open { display: block; }
+  .action-row { display: flex; gap: 7px; flex-wrap: wrap; }
+  .action-btn { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; padding: 6px 13px; border-radius: 6px; border: 1px solid #e8e4dc; background: #fff; color: #1a1a18; cursor: pointer; transition: all 0.15s; }
+  .action-btn:hover { background: #f0ede6; }
+  .action-btn.primary { background: #1a1a18; color: #f5f2eb; border-color: #1a1a18; }
+  .action-btn.primary:hover { background: #333330; }
+  .action-btn.done-btn { background: #eef7f4; color: #27896a; border-color: #c8e8df; }
+  .action-btn.done-btn:hover { background: #ddf0ea; }
+  .action-btn.warn-btn { background: #fff8e8; color: #8a5e0a; border-color: #f0c070; }
+  .transcript-toggle { font-size: 11px; color: #aaa89e; cursor: pointer; text-decoration: underline; margin-top: 8px; display: inline-block; }
+  .transcript-box { display: none; margin-top: 7px; font-size: 12px; color: #666660; font-style: italic; background: #f8f6f0; padding: 9px 11px; border-radius: 6px; line-height: 1.6; border-left: 3px solid #e8e4dc; }
+  .transcript-box.open { display: block; }
+  .processing-spinner { display: inline-block; width: 10px; height: 10px; border: 2px solid #e8e4dc; border-top-color: #888880; border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 5px; vertical-align: middle; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+
+<div class="app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="logo">HEIDI<span> COMMS</span></div>
+      <div class="divider-v"></div>
+      <div class="topbar-title">Voicemail inbox</div>
+    </div>
+    <div class="topbar-right">
+      <div class="queue-indicator"><div class="queue-dot"></div>2 processing</div>
+      <div class="date-badge">MON 08:01</div>
+      <div class="clinic-name">Harbour to Sunset GP</div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="summary-bar">
+      <div class="stat-card">
+        <div class="stat-label">Total overnight</div>
+        <div class="stat-value">26</div>
+        <div class="stat-sub">since 6:00pm Sun</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Urgent</div>
+        <div class="stat-value urgent">3</div>
+        <div class="stat-sub">act first</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Needs review</div>
+        <div class="stat-value warn">3</div>
+        <div class="stat-sub">low confidence</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Processing</div>
+        <div class="stat-value warn">2</div>
+        <div class="stat-sub">arrived after 7:50am</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Resolved</div>
+        <div class="stat-value done">3</div>
+        <div class="stat-sub">marked done</div>
+      </div>
+    </div>
+
+    <div class="filters">
+      <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+      <button class="filter-btn" onclick="setFilter('urgent', this)">Urgent</button>
+      <button class="filter-btn" onclick="setFilter('medium', this)">Medium</button>
+      <button class="filter-btn" onclick="setFilter('routine', this)">Routine</button>
+      <button class="filter-btn warn-filter" onclick="setFilter('failure', this)">⚠ Needs review</button>
+      <button class="filter-btn" onclick="setFilter('done', this)">Done</button>
+    </div>
+
+    <div id="inbox"></div>
+  </div>
+</div>
+
+<script>
+const voicemails = [
+  { id:1, urgency:'urgent', caller:'Margaret Osei', dob:'14/03/1948', time:'11:42pm', duration:'1m 12s', intent:'Chest pain — same day', summary:'Caller (daughter) reporting 76-year-old mother with intermittent chest tightness since yesterday evening, worse on lying down. Known history of heart failure. Requesting urgent callback or same-day appointment.', nextStep:'Call back immediately — triage for same-day or refer to ED', whyUrgent:'Cardiac symptom keywords detected (chest tightness, worse lying down) + known heart failure history + elderly patient. System escalated to urgent.', transcript:'"Hi yes, I\'m calling for my mum Margaret, she\'s 76. She\'s been having this tightness in her chest since last night, it gets worse when she lies down. She\'s got a history of heart problems. We\'re quite worried, can someone call us back as soon as possible? Her date of birth is the 14th of March 1948."', status:'new' },
+  { id:2, urgency:'urgent', caller:'Priya Nair', dob:'02/07/1991', time:'2:17am', duration:'0m 54s', intent:'Medication — cannot miss dose', summary:'Patient on lithium (mood stabiliser) — pharmacy says script expired, no repeats remaining. Running out today. Requesting emergency script or fax to pharmacy.', nextStep:'Check record and fax emergency script to Priceline King St before 9am', whyUrgent:'Lithium flagged as cannot-miss medication. Missing dose carries clinical risk. Auto-escalated to urgent.', transcript:'"Hi it\'s Priya Nair, DOB 2nd July 1991. I\'ve just been to the chemist and they said my lithium script has run out of repeats. I only have enough for today. I really can\'t miss a dose, can someone please sort this out first thing? My pharmacy is Priceline on King Street."', status:'new' },
+  { id:3, urgency:'urgent', caller:'Unknown caller', dob:null, time:'4:55am', duration:'0m 28s', intent:'Mental health — distress', summary:'Caller did not leave name or DOB. Distressed tone. Stated "not doing well" and "can\'t sleep". No explicit safety concern but warrants same-day follow-up. Phone number not matched in records.', nextStep:'Flag for GP — attempt to match number to patient record, consider same-day slot', whyUrgent:'Distress language detected. No ID available — system defaulted up one urgency level due to uncertainty.', transcript:'"I don\'t really know why I\'m calling... I\'m just not doing well. I haven\'t slept in three days. I\'m a patient here, I just... I didn\'t know who else to call."', status:'new' },
+  { id:4, urgency:'medium', caller:'Tom Whitfield', dob:'30/11/1965', time:'6:12pm', duration:'1m 03s', intent:'Test results — overdue', summary:'Patient requesting callback about blood test results ordered 8 days ago. GP indicated results expected within a week. Mildly anxious tone noted.', nextStep:'Check if results are in system — call patient or book results appointment', whyUrgent:'Results overdue by patient\'s account. Anxiety tone detected. Time-sensitive for patient trust.', transcript:'"Hi, it\'s Tom Whitfield, date of birth 30th November 1965. I had blood tests done about 8 days ago and Dr Chen said results would be back in a week. Just wondering if they\'re in yet. Can someone give me a ring? Thanks."', status:'new' },
+  { id:5, urgency:'medium', caller:'Sandra Kowalski', dob:'18/04/1978', time:'7:33pm', duration:'0m 47s', intent:'Referral — not received', summary:'Patient chasing rheumatology referral requested 3 weeks ago. Has not heard from specialist. Unsure if referral was sent.', nextStep:'Check referral status — confirm sent and advise estimated wait time', whyUrgent:'Referral follow-up, 3 weeks elapsed. Requires admin action to maintain patient confidence.', transcript:'"Hi Sandra Kowalski calling, 18th April 1978. I\'m just following up on a referral to the rheumatologist. It\'s been about three weeks and I haven\'t heard anything. Can you let me know if it was sent? Thank you."', status:'new' },
+  { id:6, urgency:'medium', caller:'James Tran', dob:'05/09/1983', time:'8:51pm', duration:'1m 18s', intent:'Sick certificate — deadline today', summary:'Patient needs medical certificate for today — gastro illness over weekend. Employer requires by 5pm. Patient has not been seen for this illness.', nextStep:'Determine if recently seen — likely needs telehealth consult before cert can be issued', whyUrgent:'Deadline detected ("by 5pm today"). Certificate cannot be issued without consult if patient unseen.', transcript:'"Hey it\'s James Tran, born 5th September 83. I\'ve been really crook all weekend, gastro. My boss is asking for a medical certificate for today and tomorrow. I haven\'t been in to see anyone, is there any way to get one? Maybe a phone consult or something? I need it by 5pm."', status:'new' },
+  { id:7, urgency:'failure', caller:'Unclear', dob:null, time:'1:14am', duration:'0m 09s', intent:'Unknown — transcript failed', summary:'Audio too short or unclear to extract intent. 9 seconds recorded. Possible hang-up.', nextStep:'Listen to recording manually — determine if callback is needed', whyUrgent:null, transcript:null, status:'new' },
+  { id:8, urgency:'failure', caller:'Possible: David Park', dob:null, time:'3:28am', duration:'0m 52s', intent:'Unclear — low confidence', summary:'Caller mentioned medication and an upcoming appointment but speech was unclear. Could not determine urgency with confidence (42%).', nextStep:'Review transcript carefully — classify manually before actioning', whyUrgent:'AI confidence below threshold (42%). Defaulted to needs-review to avoid misclassification.', transcript:'"Yeah hi, it\'s uh... David I think you have me in the... [unclear] ...the appointment next week, I just wanted to check about the... [unclear] ...tablets, whether I need to..."', status:'new' },
+  { id:9, urgency:'failure', caller:'Unknown caller', dob:null, time:'6:44am', duration:'2m 03s', intent:'Complex — multiple issues', summary:'Caller raised three separate issues: repeat script, referral query, and a complaint about a previous appointment. Too complex for a single next-step classification.', nextStep:'Assign to senior staff — multiple issues require separate handling', whyUrgent:'Multiple intents detected. System cannot generate a single reliable next step.', transcript:'"Hi, yes, I\'ve got a few things. First I need a repeat for my blood pressure tablets. Also I\'m still waiting on that referral to the cardiologist from three weeks ago. And I also wanted to raise a concern about my last appointment, I didn\'t feel listened to. Can someone senior call me back please?"', status:'new' },
+  { id:10, urgency:'processing', caller:'Unknown', dob:null, time:'7:52am', duration:'—', intent:'Processing…', summary:'Received at 7:52am. Transcript and classification in progress.', nextStep:null, transcript:null, whyUrgent:null, status:'processing' },
+  { id:11, urgency:'processing', caller:'Unknown', dob:null, time:'7:58am', duration:'—', intent:'Processing…', summary:'Received at 7:58am. Transcript and classification in progress.', nextStep:null, transcript:null, whyUrgent:null, status:'processing' },
+  { id:12, urgency:'routine', caller:'Helen Drummond', dob:'22/06/1954', time:'6:05pm', duration:'0m 38s', intent:'Appointment — routine', summary:'Requesting a standard GP appointment, no urgency stated. Prefers morning slots.', nextStep:'Book next available morning appointment and send SMS confirmation', whyUrgent:'No urgent keywords. Explicit "nothing urgent" detected.', transcript:'"Hello, it\'s Helen Drummond. I\'d like to make an appointment to see the doctor, nothing urgent. I prefer mornings if possible. My number is in the system. Thanks very much."', status:'done' },
+  { id:13, urgency:'routine', caller:'Daniel Ferreira', dob:'14/02/1990', time:'7:14pm', duration:'0m 31s', intent:'Script repeat — routine', summary:'Requesting repeat prescription for blood pressure medication (perindopril). No concerns raised.', nextStep:'Check medication history — issue repeat if due, otherwise book review', whyUrgent:'Perindopril is not a cannot-miss medication. No urgency language detected.', transcript:'"Hi, Daniel Ferreira here, 14th February 1990. Just after a repeat script for my blood pressure tablets, the perindopril. I think I\'m due for one. Can someone sort that? Cheers."', status:'done' },
+  { id:14, urgency:'routine', caller:'Amara Diallo', dob:'09/12/2001', time:'9:22pm', duration:'0m 44s', intent:'New patient — registration', summary:'New patient enquiry. Recently moved to the area, looking to register. No urgent medical needs.', nextStep:'Send new patient registration form via SMS and book initial consult', whyUrgent:'New patient enquiry with no clinical content. Routine classification.', transcript:'"Hi there, my name is Amara Diallo, I\'ve just moved to the area and I\'m looking for a new GP. I don\'t have anything urgent, just want to get set up with someone. Can you let me know what I need to do to register? Thanks."', status:'done' }
+];
+
+let currentFilter = 'all', expanded = null, transcriptOpen = {}, whyOpen = {}, cardStatuses = {};
+voicemails.forEach(v => cardStatuses[v.id] = v.status);
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+function toggleCard(id) {
+  if (cardStatuses[id] === 'processing') return;
+  expanded = expanded === id ? null : id;
+  render();
+}
+function toggleTranscript(id, e) { e.stopPropagation(); transcriptOpen[id] = !transcriptOpen[id]; render(); }
+function toggleWhy(id, e) { e.stopPropagation(); whyOpen[id] = !whyOpen[id]; render(); }
+function markDone(id, e) { e.stopPropagation(); cardStatuses[id] = cardStatuses[id] === 'done' ? 'new' : 'done'; render(); }
+function overrideUrgency(id, e) {
+  e.stopPropagation();
+  const levels = ['routine','medium','urgent'];
+  const v = voicemails.find(x => x.id === id);
+  const idx = levels.indexOf(v.urgency);
+  if (idx === -1) return;
+  v.urgency = levels[(idx + 1) % levels.length];
+  render();
+}
+
+function render() {
+  const filtered = voicemails.filter(v => {
+    const s = cardStatuses[v.id];
+    if (currentFilter === 'done') return s === 'done';
+    if (currentFilter === 'urgent') return v.urgency === 'urgent' && s !== 'done';
+    if (currentFilter === 'medium') return v.urgency === 'medium' && s !== 'done';
+    if (currentFilter === 'routine') return v.urgency === 'routine' && s !== 'done';
+    if (currentFilter === 'failure') return (v.urgency === 'failure' || v.urgency === 'processing') && s !== 'done';
+    return true;
+  });
+  const sections = currentFilter === 'all' ? [
+    { label:'🔴 Urgent — act first', items: filtered.filter(v => v.urgency==='urgent' && cardStatuses[v.id]!=='done') },
+    { label:'🟠 Medium priority', items: filtered.filter(v => v.urgency==='medium' && cardStatuses[v.id]!=='done') },
+    { label:'⚠ Needs human review', items: filtered.filter(v => v.urgency==='failure' && cardStatuses[v.id]!=='done') },
+    { label:'⏳ Still processing', items: filtered.filter(v => v.urgency==='processing') },
+    { label:'🟢 Routine', items: filtered.filter(v => v.urgency==='routine' && cardStatuses[v.id]!=='done') },
+    { label:'✓ Done', items: filtered.filter(v => cardStatuses[v.id]==='done') }
+  ] : [{ label:null, items:filtered }];
+  document.getElementById('inbox').innerHTML = sections.map(s => {
+    if (!s.label) return s.items.map(v => renderCard(v)).join('');
+    if (s.items.length === 0) return '';
+    return `<div class="section-label">${s.label}</div>${s.items.map(v => renderCard(v)).join('')}`;
+  }).join('');
+}
+
+function renderCard(v) {
+  const isExpanded = expanded === v.id;
+  const isDone = cardStatuses[v.id] === 'done';
+  const isProcessing = v.urgency === 'processing';
+  const pillClass = isProcessing ? 'processing' : v.urgency === 'failure' ? 'failure' : v.urgency;
+  const pillLabel = isProcessing ? 'processing' : v.urgency === 'failure' ? 'review' : v.urgency;
+  return `<div class="voicemail-card ${v.urgency} ${isDone?'done':''}" data-id="${v.id}" onclick="toggleCard(${v.id})">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="urgency-pill ${pillClass}">${pillLabel}</div>
+        <div class="card-body">
+          <div class="caller-row">
+            <span class="caller-name">${v.caller}</span>
+            ${v.dob ? `<span class="dob-tag">DOB ${v.dob}</span>` : (isProcessing ? '' : `<span class="no-id-tag">· No patient ID</span>`)}
+          </div>
+          <div class="intent-tag ${v.urgency==='failure'?'failure-tag':''}">${v.intent}</div>
+          <div class="summary-text">${v.summary}</div>
+          ${isProcessing ? `<div class="processing-note"><span class="processing-spinner"></span>Card will update automatically when ready</div>` : ''}
+          <div class="card-meta">
+            ${v.duration !== '—' ? `<span class="meta-item">⏱ ${v.duration}</span>` : ''}
+            <span class="meta-item">🕐 ${v.time}</span>
+            ${v.whyUrgent ? `<span class="why-label" onclick="toggleWhy(${v.id},event)">${whyOpen[v.id]?'hide reasoning':'why this priority?'}</span>` : ''}
+          </div>
+        </div>
+      </div>
+      <div class="card-right">
+        <div class="time-label">${v.time}</div>
+        ${!isProcessing && !isDone && v.urgency !== 'failure' ? `<button class="override-btn" onclick="overrideUrgency(${v.id},event)">override ↕</button>` : ''}
+      </div>
+    </div>
+    <div class="expanded-area ${isExpanded?'open':''}">
+      ${v.whyUrgent ? `<div class="why-box ${whyOpen[v.id]?'open':''}">AI reasoning: ${v.whyUrgent}</div>` : ''}
+      ${v.nextStep ? `
+        <div class="next-step-label">Suggested next step</div>
+        <div class="next-step-text">→ ${v.nextStep}</div>
+        <div class="action-row">
+          ${v.dob ? `<button class="action-btn primary" onclick="event.stopPropagation()">Call back</button>` : ''}
+          ${v.urgency==='failure' ? `<button class="action-btn warn-btn" onclick="event.stopPropagation()">Listen to recording</button>` : ''}
+          <button class="action-btn done-btn" onclick="markDone(${v.id},event)">${isDone?'Reopen':'Mark done'}</button>
+          <button class="action-btn" onclick="event.stopPropagation()">Assign to GP</button>
+          <button class="action-btn" onclick="event.stopPropagation()">Add note</button>
+        </div>
+        ${v.transcript ? `<span class="transcript-toggle" onclick="toggleTranscript(${v.id},event)">${transcriptOpen[v.id]?'Hide transcript':'View full transcript'}</span>
+        <div class="transcript-box ${transcriptOpen[v.id]?'open':''}">${v.transcript}</div>` : ''}
+      ` : ''}
+    </div>
+  </div>`;
+}
+render();
+</script>
